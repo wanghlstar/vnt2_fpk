@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png"
+        href="data:image/png;base64,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" />
+    <title>VNT2 配置文件生成器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(to right, #f0f4ff, #ffffff);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .form,
+        .output {
+            flex: 1 1 480px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 15px 0 6px;
+            color: #34495e;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .server-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .server-group select {
+            width: 110px;
+        }
+
+        .server-group input {
+            flex: 1;
+        }
+
+        .list-group {
+            margin-top: 5px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .list-item input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .list-item .btn-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .list-item button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 120px;
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: scale(1.03);
+        }
+
+        .output pre {
+            white-space: pre-wrap;
+            background-color: #f8f8f8;
+            border-radius: 12px;
+            padding: 20px;
+            height: 65vh;
+            overflow-y: auto;
+            font-size: 15px;
+            color: #2c3e50;
+            border: 1px solid #dcdcdc;
+        }
+
+        @media (max-width: 768px) {
+
+            .form,
+            .output {
+                flex: 1 1 100%;
+            }
+        }
+
+        /* 红色边框和闪烁动画 */
+        .input-error {
+            border-color: red !important;
+            outline: none;
+        }
+
+        @keyframes blink-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.7);
+            }
+
+            50% {
+                box-shadow: none;
+            }
+        }
+
+        .blink {
+            animation: blink-red 1s infinite;
+        }
+
+        .divider-toggle {
+            margin: 30px 0 10px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            font-weight: bold;
+            color: #3498db;
+            user-select: none;
+        }
+
+        .divider-toggle::before,
+        .divider-toggle::after {
+            content: "";
+            height: 2px;
+            background: #ccc;
+            position: absolute;
+            top: 50%;
+            width: 40%;
+        }
+
+        .divider-toggle::before {
+            left: 0;
+        }
+
+        .divider-toggle::after {
+            right: 0;
+        }
+
+        .section-subtitle {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 30px 0 10px;
+            color: #056578;
+            font-weight: bold;
+            user-select: none;
+            gap: 10px;
+        }
+
+        .section-subtitle::before,
+        .section-subtitle::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #ccc;
+        }
+
+        .section-subtitle::before {
+            left: 0;
+        }
+
+        .section-subtitle::after {
+            right: 0;
+        }
+
+        .form-line {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .form-line>label {
+            width: 180px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .custom-radio {
+            position: relative;
+            padding-left: 24px;
+            cursor: pointer;
+            font-size: 15px;
+            user-select: none;
+        }
+
+        .custom-radio input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .box-check {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #999;
+            border-radius: 2px;
+            background: #fff;
+        }
+
+        .custom-radio input:checked+.box-check::after {
+            content: "✓";
+            position: absolute;
+            left: 2px;
+            top: -2px;
+            font-size: 14px;
+            color: #000;
+        }
+
+        .inline-hint {
+            font-size: 12px;
+            color: #f1c40f;
+            margin-left: 8px;
+            display: none;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none !important;
+            opacity: 0.7;
+        }
+
+        .err-text {
+            color: red;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 左侧输入区域 -->
+        <div class="form">
+            <h2>VNT2 启动参数</h2>
+
+            <div class="section-subtitle">
+                <span>基本参数</span>
+            </div>
+            <label title="network_code  网络编号，相同编号的会组在同一个虚拟局域网，必填">组网编号:</label>
+            <input id="network_code" placeholder="例如 123456" />
+            <label title="server  注册和中继服务器地址，协议支持 quic / tcp / wss / dynamic，必填，可添加多个服务端实现容灾">服务端地址:</label>
+            <div id="servers" class="list-group"></div>
+            <button class="add-btn" type="button" onclick="addServer()">+ 添加服务端</button>
+            <label title="password  组网密码，设置后节点之间数据采用端到端加密，同一虚拟网络内的所有设备必须使用相同的密码">组网密码:</label>
+            <input id="password" placeholder="留空则不加密" />
+            <label title="ip  自定义虚拟IP，指定的ip不能和其他设备重复，必须有效并且在服务端所属网段下，留空则由服务端分配">虚拟IPv4:</label>
+            <input id="ip" placeholder="10.26.0.2" />
+            <label title="device_name  给设备一个名字，便于区分不同设备，留空则使用主机名">设备名称:</label>
+            <input id="device_name" placeholder="飞牛NAS" />
+            <label title="device_id  设备唯一标识符，不使用ip参数时服务端凭此分配虚拟ip，建议填写防止重启后虚拟ip变化">设备ID:</label>
+            <input id="device_id" placeholder="例如 fnos-01" />
+
+            <div class="section-subtitle">
+                <span>传输优化</span>
+            </div>
+            <div class="form-line">
+                <label for="rtx" title="rtx  启用quic优化传输，提升弱网环境下的流量稳定性">QUIC优化传输:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="rtx" value="true">
+                        <span class="box-check"></span>开启
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="rtx" value="false" checked>
+                        <span class="box-check"></span>关闭
+                    </label>
+                </div>
+            </div>
+            <div class="form-line">
+                <label for="compress" title="compress  启用LZ4压缩，数据包长度大于等于128时使用压缩">数据压缩:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="compress" value="true">
+                        <span class="box-check"></span>开启
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="compress" value="false" checked>
+                        <span class="box-check"></span>关闭
+                    </label>
+                </div>
+            </div>
+            <div class="form-line">
+                <label for="fec" title="fec  启用FEC前向纠错，损失一定带宽来提升网络稳定性">FEC前向纠错:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="fec" value="true">
+                        <span class="box-check"></span>开启
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="fec" value="false" checked>
+                        <span class="box-check"></span>关闭
+                    </label>
+                </div>
+            </div>
+            <div class="form-line">
+                <label for="no_punch" title="no_punch  关闭P2P打洞，全部流量走服务端中继">关闭打洞:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="no_punch" value="true">
+                        <span class="box-check"></span>关闭
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="no_punch" value="false" checked>
+                        <span class="box-check"></span>开启
+                    </label>
+                </div>
+            </div>
+
+            <div class="section-subtitle">
+                <span>虚拟网卡</span>
+            </div>
+            <label title="device_mode  虚拟网卡模式：no（无网卡，仅提供流量出口和端口映射）、tun（三层网卡，默认）、tap（二层网卡）">网卡模式:</label>
+            <select id="device_mode">
+                <option value="tun">tun（三层网卡）</option>
+                <option value="tap">tap（二层网卡）</option>
+                <option value="no">no（无网卡）</option>
+            </select>
+            <label title="tun_name  虚拟网卡名称，留空使用程序默认值">虚拟网卡名称:</label>
+            <input id="tun_name" placeholder="vnt-tun" />
+            <label title="mtu  虚拟网卡的MTU值，留空使用默认值1400">虚拟网卡MTU:</label>
+            <input id="mtu" placeholder="1400" />
+            <div class="form-line">
+                <label for="no_nat" title="no_nat  关闭内置子网NAT，关闭后需要配置网卡转发，点对网性能会更好">内置子网NAT:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="no_nat" value="false" checked>
+                        <span class="box-check"></span>开启
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="no_nat" value="true">
+                        <span class="box-check"></span>关闭
+                    </label>
+                </div>
+            </div>
+            <label title="outbound_interface  绑定对外通信Socket的出口网卡名称，多WAN接入时需要指定">本地出口网卡名称:</label>
+            <input id="outbound_interface" placeholder="eth0" />
+
+            <div class="section-subtitle">
+                <span>点对网 &amp; 端口映射</span>
+            </div>
+            <label title="input  入栈监听网段，用于点对网，将指定网段的流量发送到目标节点，格式：网段,目标虚拟IP">入栈监听网段:</label>
+            <div id="inputs" class="list-group"></div>
+            <button class="add-btn" type="button" onclick="addListItem('inputs', '', '192.168.3.0/24,10.26.0.3')">+ 添加</button>
+            <label title="output  出栈允许网段，用于点对网，允许指定网段的转发">出栈允许网段:</label>
+            <div id="outputs" class="list-group"></div>
+            <button class="add-btn" type="button" onclick="addListItem('outputs', '', '192.168.0.0/24')">+ 添加</button>
+            <label title="port_mapping  端口映射，格式为：协议://本地监听地址-目标虚拟IP-目标映射地址">端口映射:</label>
+            <div id="mappings" class="list-group"></div>
+            <button class="add-btn" type="button" onclick="addListItem('mappings', '', 'tcp://0.0.0.0:81-10.26.0.2-192.168.1.10:80')">+ 添加</button>
+            <div class="form-line">
+                <label for="allow_mapping" title="allow_mapping  允许作为端口映射出口，开启后其他设备才可使用本设备的ip为目标虚拟IP">端口映射出口:</label>
+                <div class="toggle-group">
+                    <label class="custom-radio">
+                        <input type="radio" name="allow_mapping" value="true">
+                        <span class="box-check"></span>开启
+                    </label>
+                    <label class="custom-radio">
+                        <input type="radio" name="allow_mapping" value="false" checked>
+                        <span class="box-check"></span>关闭
+                    </label>
+                </div>
+            </div>
+
+            <!-- 高级设置开关按钮 -->
+            <div class="divider-toggle" onclick="toggleAdvanced()">展开高级设置</div>
+
+            <!-- 高级设置区域（默认隐藏） -->
+            <div id="advanced-section" style="display: none; margin-top: 15px;">
+                <label title="ctrl_port  控制服务的tcp端口，设置0时禁用控制服务（本页面的信息查询依赖此服务）">控制端口:</label>
+                <input id="ctrl_port" placeholder="11233" />
+                <label title="tunnel_port  用于P2P通信的隧道端口，默认为0自动分配">隧道端口:</label>
+                <input id="tunnel_port" placeholder="0" />
+                <label title="cert_mode  服务端证书验证：skip 跳过验证（默认）、standard 使用系统证书验证、finger 使用证书指纹验证">证书校验方式:</label>
+                <select id="cert_mode">
+                    <option value="">skip（跳过验证）</option>
+                    <option value="standard">standard（系统证书验证）</option>
+                    <option value="finger">finger（证书指纹验证）</option>
+                </select>
+                <label title="udp_stun  自定义udp打洞的stun地址，不设置则用默认stun">UDP STUN服务器:</label>
+                <div id="udp_stun" class="list-group"></div>
+                <button class="add-btn" type="button" onclick="addListItem('udp_stun', '', 'stun.chat.bilibili.com')">+ 添加</button>
+                <label title="tcp_stun  自定义tcp打洞的stun地址，不设置则用默认stun">TCP STUN服务器:</label>
+                <div id="tcp_stun" class="list-group"></div>
+                <button class="add-btn" type="button" onclick="addListItem('tcp_stun', '', 'stun.nextcloud.com:443')">+ 添加</button>
+            </div>
+
+            <br><button class="button-group" type="button" onclick="generateConfig()">生成配置</button>
+        </div>
+
+        <!-- 右侧输出区域 -->
+        <div class="output">
+            <h2>配置文件生成区域</h2>
+            <pre id="output">请先填写启动参数后再点击生成配置，复制到飞牛NAS里即可！</pre>
+            <div class="button-group">
+                <button id="copyBtn" onclick="copyOutput()" disabled>复制</button>
+                <button id="downloadBtn" onclick="downloadToml()" disabled>下载</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAdvanced() {
+            const section = document.getElementById("advanced-section");
+            const btn = event.target;
+
+            if (section.style.display === "none") {
+                section.style = "display: block; margin-top: 15px;";
+                btn.textContent = "收起高级设置";
+            } else {
+                section.style.display = "none";
+                btn.textContent = "展开高级设置";
+            }
+        }
+
+        // 添加一行输入项
+        function addListItem(id, value = "", placeholder = "") {
+            const group = document.getElementById(id);
+            const div = document.createElement("div");
+            div.className = "list-item";
+            const input = document.createElement("input");
+            input.value = value;
+            if (placeholder) input.placeholder = placeholder;
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "- 移除";
+            removeBtn.type = "button";
+            removeBtn.onclick = () => div.remove();
+            div.appendChild(input);
+            div.appendChild(removeBtn);
+            group.appendChild(div);
+        }
+
+        // 添加一行服务端（协议+地址）
+        function addServer(proto = "quic", addr = "") {
+            const group = document.getElementById("servers");
+            const div = document.createElement("div");
+            div.className = "list-item server-group";
+            const select = document.createElement("select");
+            ["quic", "tcp", "wss", "dynamic"].forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                if (p === proto) opt.selected = true;
+                select.appendChild(opt);
+            });
+            const input = document.createElement("input");
+            input.value = addr;
+            input.placeholder = "101.35.230.139:6660";
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "- 移除";
+            removeBtn.type = "button";
+            removeBtn.onclick = () => {
+                if (group.children.length > 1) div.remove();
+            };
+            div.appendChild(select);
+            div.appendChild(input);
+            div.appendChild(removeBtn);
+            group.appendChild(div);
+        }
+
+        // 获取所有输入值组成数组
+        function getList(id) {
+            const inputs = document.querySelectorAll(`#${id} input`);
+            return Array.from(inputs).map(el => el.value.trim()).filter(v => v !== "");
+        }
+
+        // 获取所有服务端地址
+        function getServers() {
+            const rows = document.querySelectorAll("#servers .list-item");
+            const result = [];
+            rows.forEach(row => {
+                const proto = row.querySelector("select").value;
+                const addr = row.querySelector("input").value.trim();
+                if (addr) result.push(`${proto}://${addr}`);
+            });
+            return result;
+        }
+
+        // 获取单值
+        const getVal = id => document.getElementById(id).value.trim();
+
+        // 获取单选值
+        function getRadio(name) {
+            const el = document.querySelector(`input[name="${name}"]:checked`);
+            return el ? el.value : "false";
+        }
+
+        function showError(id, message) {
+            const input = document.getElementById(id);
+            input.classList.add("input-error", "blink");
+            input.focus();
+
+            const oldError = document.getElementById(id + "-error");
+            if (oldError) oldError.remove();
+
+            const error = document.createElement("div");
+            error.id = id + "-error";
+            error.className = "err-text";
+            error.textContent = message;
+            input.insertAdjacentElement("afterend", error);
+        }
+
+        function clearError(id) {
+            const input = document.getElementById(id);
+            input.classList.remove("input-error", "blink");
+            const error = document.getElementById(id + "-error");
+            if (error) error.remove();
+        }
+
+        // 校验是否为合法IPv4地址
+        function isValidIPv4(ip) {
+            const parts = ip.split('.');
+            if (parts.length !== 4) return false;
+            for (let part of parts) {
+                if (!/^\d+$/.test(part)) return false;
+                const num = Number(part);
+                if (num < 0 || num > 255) return false;
+            }
+            return true;
+        }
+
+        // 生成配置
+        function generateConfig() {
+            ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port"].forEach(clearError);
+
+            const codeVal = getVal("network_code");
+            const ipVal = getVal("ip");
+            const mtuVal = getVal("mtu");
+            const deviceidVal = getVal("device_id");
+            const ctrlPortVal = getVal("ctrl_port");
+            const tunnelPortVal = getVal("tunnel_port");
+            const servers = getServers();
+
+            // 1. 必填校验
+            if (!codeVal) {
+                showError("network_code", "这是必填项哦，可别漏了哦~");
+                return;
+            }
+            // 2. 服务端校验
+            if (servers.length === 0) {
+                showError("network_code", "至少需要填写一个服务端地址哦~");
+                return;
+            }
+            // 3. 设备ID校验
+            if (!deviceidVal) {
+                showError("device_id", "建议填写一个设备ID哦，防止重启设备后客户端虚拟ip变化~");
+                return;
+            }
+            // 4. ip 校验（非空时校验）
+            if (ipVal && !isValidIPv4(ipVal)) {
+                showError("ip", "请输入有效的IPv4地址!");
+                return;
+            }
+            // 5. mtu 校验（非空时校验）
+            if (mtuVal) {
+                const mtuNum = Number(mtuVal);
+                if (!Number.isInteger(mtuNum) || mtuNum < 68 || mtuNum > 9000) {
+                    showError("mtu", "请输入68到9000之间的整数!");
+                    return;
+                }
+            }
+            // 6. 控制端口校验（非空时校验）
+            if (ctrlPortVal) {
+                const portNum = Number(ctrlPortVal);
+                if (!Number.isInteger(portNum) || portNum < 0 || portNum > 65535) {
+                    showError("ctrl_port", "请输入0到65535之间的整数，0表示禁用控制服务!");
+                    return;
+                }
+            }
+            // 7. 隧道端口校验（非空时校验）
+            if (tunnelPortVal) {
+                const tpNum = Number(tunnelPortVal);
+                if (!Number.isInteger(tpNum) || tpNum < 0 || tpNum > 65535) {
+                    showError("tunnel_port", "请输入0到65535之间的整数，0表示自动分配!");
+                    return;
+                }
+            }
+
+            const config = [];
+            const push = (text) => config.push(text);
+            const pushKV = (key, value, comment = "") => {
+                push(`${key} = ${value}${comment ? `   # ${comment}` : ""}`);
+            };
+            const pushList = (key, list, comment = "") => {
+                if (list.length > 0) {
+                    const arr = list.map(v => `"${v}"`).join(", ");
+                    push(`${key} = [${arr}]${comment ? `   # ${comment}` : ""}`);
+                }
+            };
+
+            push("# ═══════════════════════════════════════════════════════");
+            push("# VNT2 配置文件");
+            push("# 由 飞牛NAS VNT2 客户端配置生成器 生成");
+            push("# ═══════════════════════════════════════════════════════");
+            push("");
+            push("# ─── 网络配置 ───");
+            push("# 组网编号，相同编号的设备组在同一个虚拟局域网 (必填)");
+            pushKV("network_code", `"${codeVal}"`);
+            push("");
+            push("# 服务端地址列表，协议支持 quic / tcp / wss / dynamic (必填)");
+            pushList("server", servers);
+            push("");
+            if (getVal("password")) {
+                push("# 组网密码，设置后节点之间数据端到端加密，所有设备需保持一致");
+                pushKV("password", `"${getVal("password")}"`);
+                push("");
+            }
+            if (ipVal) {
+                push("# 自定义虚拟IP，留空则由服务端分配");
+                pushKV("ip", `"${ipVal}"`);
+                push("");
+            }
+            if (deviceidVal) {
+                push("# 设备ID，不同设备不能相同");
+                pushKV("device_id", `"${deviceidVal}"`);
+                push("");
+            }
+            if (getVal("device_name")) {
+                push("# 设备名称");
+                pushKV("device_name", `"${getVal("device_name")}"`);
+                push("");
+            }
+
+            push("# ─── 传输优化 ───");
+            if (getRadio("rtx") === "true") {
+                pushKV("rtx", "true", "启用quic优化传输");
+                push("");
+            }
+            if (getRadio("compress") === "true") {
+                pushKV("compress", "true", "启用LZ4压缩");
+                push("");
+            }
+            if (getRadio("fec") === "true") {
+                pushKV("fec", "true", "启用FEC前向纠错");
+                push("");
+            }
+            if (getRadio("no_punch") === "true") {
+                pushKV("no_punch", "true", "关闭P2P打洞，全部走服务端中继");
+                push("");
+            }
+
+            push("# ─── 虚拟网卡 ───");
+            pushKV("device_mode", `"${getVal("device_mode")}"`, "no（无网卡）/ tun（三层网卡）/ tap（二层网卡）");
+            if (getVal("tun_name")) {
+                pushKV("tun_name", `"${getVal("tun_name")}"`, "虚拟网卡名称");
+            }
+            if (mtuVal) {
+                pushKV("mtu", mtuVal, "虚拟网卡MTU");
+            }
+            if (getRadio("no_nat") === "true") {
+                pushKV("no_nat", "true", "关闭内置子网NAT，点对网性能更好");
+            }
+            if (getVal("outbound_interface")) {
+                pushKV("outbound_interface", `"${getVal("outbound_interface")}"`, "对外通信出口网卡");
+            }
+            push("");
+
+            push("# ─── 点对网 & 端口映射 ───");
+            pushList("input", getList("inputs"), "入栈监听网段：网段,目标虚拟IP");
+            pushList("output", getList("outputs"), "出栈允许网段");
+            pushList("port_mapping", getList("mappings"), "端口映射：协议://本地监听地址-目标虚拟IP-目标映射地址");
+            if (getRadio("allow_mapping") === "true") {
+                pushKV("allow_mapping", "true", "允许作为端口映射出口");
+            }
+            push("");
+
+            push("# ─── 高级设置 ───");
+            if (ctrlPortVal) {
+                pushKV("ctrl_port", ctrlPortVal, "控制服务端口，0表示禁用");
+            }
+            if (tunnelPortVal) {
+                pushKV("tunnel_port", tunnelPortVal, "P2P隧道端口，0表示自动分配");
+            }
+            if (getVal("cert_mode")) {
+                pushKV("cert_mode", `"${getVal("cert_mode")}"`, "服务端证书验证方式");
+            }
+            pushList("udp_stun", getList("udp_stun"), "自定义udp stun地址");
+            pushList("tcp_stun", getList("tcp_stun"), "自定义tcp stun地址");
+
+            document.getElementById("output").textContent = config.join("\n");
+            document.getElementById("copyBtn").disabled = false;
+            document.getElementById("downloadBtn").disabled = false;
+            // 自动滚动到输出区域
+            document.getElementById("output").scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+        function copyOutput() {
+            const output = document.getElementById("output");
+            const range = document.createRange();
+            range.selectNode(output);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            document.execCommand("copy");
+            alert("配置已复制到剪贴板！");
+        }
+
+        function downloadToml() {
+            const content = document.getElementById("output").textContent;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "config.toml");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 初始化默认行
+        addServer("quic", "101.35.230.139:6660");
+        addListItem("inputs", "", "192.168.3.0/24,10.26.0.3");
+        addListItem("outputs", "", "192.168.0.0/24");
+        addListItem("mappings", "", "tcp://0.0.0.0:81-10.26.0.2-192.168.1.10:80");
+
+        // 监听输入，实时清除错误
+        ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port"].forEach(id => {
+            document.getElementById(id).addEventListener("input", () => clearError(id));
+        });
+
+        document.querySelectorAll("label[title]").forEach(label => {
+            const hintSpan = document.createElement("span");
+            hintSpan.className = "inline-hint";
+            label.appendChild(hintSpan);
+
+            // 尝试找到 input、select 或其父容器中的元素
+            let input = label.nextElementSibling;
+
+            // 如果下一个不是 input/select，继续找内部的 input 或 select
+            if (input && !(input.tagName === "INPUT" || input.tagName === "SELECT")) {
+                input = input.querySelector("input, select");
+            }
+
+            // 找到了就绑定 focus 和 blur
+            if (input) {
+                input.addEventListener("focus", () => {
+                    hintSpan.textContent = label.getAttribute("title");
+                    hintSpan.style.display = "inline";
+                });
+                input.addEventListener("blur", () => {
+                    hintSpan.style.display = "none";
+                });
+            }
+
+            // 特殊处理 radio 按钮组：监听同一组的所有 radio
+            const name = input?.name;
+            if (input?.type === "radio" && name) {
+                const radios = document.querySelectorAll(`input[type="radio"][name="${name}"]`);
+                radios.forEach(radio => {
+                    radio.addEventListener("focus", () => {
+                        hintSpan.textContent = label.getAttribute("title");
+                        hintSpan.style.display = "inline";
+                    });
+                    radio.addEventListener("blur", () => {
+                        hintSpan.style.display = "none";
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

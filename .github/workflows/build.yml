@@ -1,0 +1,221 @@
+name: 打包fpk安装包
+
+on:
+  workflow_dispatch:
+    inputs:
+      vnt2:
+        description: '打包VNT2客户端fpk包'
+        required: true
+        default: true
+        type: boolean
+      vnts2:
+        description: '打包VNTS2服务端fpk包'
+        required: true
+        default: true
+        type: boolean
+      release:
+        description: '是否发布到 Release'
+        required: true
+        default: true
+        type: boolean
+  
+env:
+  TZ: Asia/Shanghai
+
+permissions:
+  contents: write
+  actions: write
+  
+jobs:
+  build:
+    name: 正在打包 ${{ matrix.target }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        
+        - target: VNT2客户端-all
+          name: vnt2-cli-all
+          os: ubuntu-latest
+
+        - target: VNT2客户端-x86
+          name: vnt2-cli-x86
+          os: ubuntu-latest
+
+        - target: VNT2客户端-arm
+          name: vnt2-cli-arm
+          os: ubuntu-latest
+
+        - target: VNTS2服务端-all
+          name: vnts2-all
+          os: ubuntu-latest
+
+        - target: VNTS2服务端-x86
+          name: vnts2-x86
+          os: ubuntu-latest
+
+        - target: VNTS2服务端-arm
+          name: vnts2-arm
+          os: ubuntu-latest
+          
+    runs-on: ${{ matrix.os }}
+    env:
+         TARGET: ${{ matrix.target }}
+    steps:
+     - name: Checkout code
+       uses: actions/checkout@main
+
+     -  name: delete-workflow-runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          retain_days: 0
+          keep_minimum_runs: 0
+          
+     - name: 修改版本号时间
+       run: |
+        TODAY=$(date +'%Y-%m-%d')
+        sed -i "s/-time/-$TODAY/g" vnt2/manifest
+        sed -i "s/-time/-$TODAY/g" vnts2/manifest
+    
+     - name: 打包 all 所有架构 VNT2客户端
+       if: ${{ matrix.target == 'VNT2客户端-all' && github.event.inputs.vnt2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 all VNT2客户端 vnt2-cli.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnt2 /opt/vnt2
+        cd /opt/vnt2
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnt2-cli.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnt2-cli.fpk /opt/fnpack_vnt2/vnt2-cli_all.fpk
+      
+        echo -e "\033[32m ✅ 打包 vnt2-cli_all.fpk 包完成！\033[0m"
+
+     - name: 打包 x86 架构 VNT2客户端
+       if: ${{ matrix.target == 'VNT2客户端-x86' && github.event.inputs.vnt2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 x86 VNT2客户端 vnt2-cli.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnt2 /opt/vnt2
+        cd /opt/vnt2
+        rm -rf app/bin/vnt2_cli_a*
+        rm -rf app/bin/vnt2_ctrl_a*
+        sed -i '/^platform[[:space:]]*=/d' manifest
+        sed -i '/^source[[:space:]]*=/i platform              = x86' manifest
+        sed -i '/^source[[:space:]]*=/i arch                  = x86' manifest
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnt2-cli.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnt2-cli.fpk /opt/fnpack_vnt2/vnt2-cli_x86.fpk
+      
+        echo -e "\033[32m ✅ 打包 vnt2-cli_x86.fpk 包完成！\033[0m"
+
+     - name: 打包 arm 架构 VNT2客户端
+       if: ${{ matrix.target == 'VNT2客户端-arm' && github.event.inputs.vnt2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 arm VNT2客户端 vnt2-cli.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnt2 /opt/vnt2
+        cd /opt/vnt2
+        rm -rf app/bin/vnt2_cli_x86*
+        rm -rf app/bin/vnt2_ctrl_x86*
+        sed -i '/^platform[[:space:]]*=/d' manifest
+        sed -i '/^source[[:space:]]*=/i platform              = arm' manifest
+        sed -i '/^source[[:space:]]*=/i arch                  = aarch64' manifest
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnt2-cli.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnt2-cli.fpk /opt/fnpack_vnt2/vnt2-cli_arm.fpk
+      
+        echo -e "\033[32m ✅ 打包 vnt2-cli_arm.fpk 包完成！\033[0m"
+
+     - name: 打包 all 所有架构 VNTS2服务端
+       if: ${{ matrix.target == 'VNTS2服务端-all' && github.event.inputs.vnts2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 all VNTS2服务端 vnts2.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnts2 /opt/vnts2
+        cd /opt/vnts2
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnts2.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnts2.fpk /opt/fnpack_vnt2/vnts2_all.fpk
+        
+        echo -e "\033[32m ✅ 打包 vnts2_all.fpk 包完成！\033[0m"
+
+     - name: 打包 x86 架构 VNTS2服务端
+       if: ${{ matrix.target == 'VNTS2服务端-x86' && github.event.inputs.vnts2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 x86 VNTS2服务端 vnts2.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnts2 /opt/vnts2
+        cd /opt/vnts2
+        rm -rf app/bin/vnts2_a*
+        rm -rf app/bin/vnts2_armv*
+        sed -i '/^platform[[:space:]]*=/d' manifest
+        sed -i '/^source[[:space:]]*=/i platform              = x86' manifest
+        sed -i '/^source[[:space:]]*=/i arch                  = x86' manifest
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnts2.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnts2.fpk /opt/fnpack_vnt2/vnts2_x86.fpk
+        
+        echo -e "\033[32m ✅ 打包 vnts2_x86.fpk 包完成！\033[0m"
+
+     - name: 打包 arm 架构 VNTS2服务端
+       if: ${{ matrix.target == 'VNTS2服务端-arm' && github.event.inputs.vnts2 == 'true' }}
+       run: |
+        echo -e "\033[32m ===> 开始打包 arm VNTS2服务端 vnts2.fpk 包 <=== \033[0m"
+        
+        cp -rf ./vnts2 /opt/vnts2
+        cd /opt/vnts2
+        rm -rf app/bin/vnts2_x86*
+        sed -i '/^platform[[:space:]]*=/d' manifest
+        sed -i '/^source[[:space:]]*=/i platform              = arm' manifest
+        sed -i '/^source[[:space:]]*=/i arch                  = aarch64' manifest
+        tar -czf app.tgz --transform='s,app/,,g' app/bin app/ui
+        tar -czf vnts2.fpk --exclude='app' *
+        mkdir -p /opt/fnpack_vnt2
+        cp -rf vnts2.fpk /opt/fnpack_vnt2/vnts2_arm.fpk
+        
+        echo -e "\033[32m ✅ 打包 vnts2_arm.fpk 包完成！\033[0m"
+
+         
+     - uses: actions/upload-artifact@v4
+       with:
+         name: ${{ matrix.name }}
+         path: /opt/fnpack_vnt2/*.fpk
+
+         
+  release:
+    needs: build
+    if: ${{ github.event.inputs.release == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout code
+       uses: actions/checkout@v5
+
+     - name: 下载已上传的 .fpk 文件
+       uses: actions/download-artifact@v4
+       with:
+         path: fnpack_files
+
+     - name: 设置构建时间
+       run: |
+        mkdir -p release
+        find fnpack_files -type f -name "*.fpk" -exec mv {} release/ \;
+        chmod +x release/*
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        echo "build_time=$(date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
+        echo "tag=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+
+     - name: 发布Release
+       uses: softprops/action-gh-release@v2
+       with:
+         token: ${{ secrets.GITHUB_TOKEN }}
+         tag_name: ${{ env.tag }}
+         body: |
+           > ### ![](https://img.shields.io/badge/打包时间-${{ env.build_time }}-8267?logo=github&labelColor=%E9%A1%BB)![](https://img.shields.io/github/downloads/${{ github.repository }}/${{ env.tag }}/total?label=%E4%B8%8B%E8%BD%BD%E6%AC%A1%E6%95%B0&logo=github)
+         
+         files: release/*.fpk

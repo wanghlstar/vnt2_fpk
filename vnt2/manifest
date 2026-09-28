@@ -1,0 +1,16 @@
+appname               = vnt2
+version               = 2.0.10-time
+display_name          = VNT2-客户端
+desc                  = <h1><a href="https://github.com/vnt-dev/vnt" target="_blank">VNT2</a> 是一个简便高效的异地组网、内网穿透工具，与1.x不兼容</h1><br><img alt="" src="https://img.shields.io/github/v/release/wanghlstar/vnt2_fpk?label=%E9%A3%9E%E7%89%9B%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&link=https%3A%2F%2Fgithub.com%2Fwanghlstar%2Fvnt2_fpk%2Freleases"><br>⚠️ 注意： 首次安装完成后需要打开客户端，在配置文件里填写 组网编号(network_code) 和 服务端地址(server) 再启动，可点“点此生成配置文件”生成后粘贴保存
+platform              = all
+source                = thirdparty
+maintainer            = vnt-dev
+maintainer_url        = https://github.com/vnt-dev/vnt
+distributor           = wanghlstar
+distributor_url       = https://github.com/wanghlstar/vnt2_fpk
+
+ctl_stop              = true
+install_type          = root
+
+desktop_uidir         = ui
+desktop_applaunchname = vnt2.Application

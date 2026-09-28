@@ -1,0 +1,147 @@
+[
+    {
+        "stepTitle": "配置参数",
+        "items": [
+            {
+                "type": "text",
+                "field": "vnts2_web_port",
+                "label": "WEB管理端口",
+                "initValue": "29871",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入端口号"
+                    },
+                    {
+                        "pattern": "^[0-9]+$",
+                        "message": "端口号必须是数字"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "vnts2_tcp_port",
+                "label": "TCP服务端口",
+                "initValue": "29872",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入端口号"
+                    },
+                    {
+                        "pattern": "^[0-9]+$",
+                        "message": "端口号必须是数字"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "vnts2_quic_port",
+                "label": "QUIC(UDP)服务端口",
+                "initValue": "29872",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入端口号"
+                    },
+                    {
+                        "pattern": "^[0-9]+$",
+                        "message": "端口号必须是数字"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "vnts2_ws_port",
+                "label": "WebSocket端口（留空不启用）",
+                "initValue": ""
+            },
+            {
+                "type": "text",
+                "field": "vnts2_network",
+                "label": "虚拟网段",
+                "initValue": "10.26.0.0/24",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入虚拟网段"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "vnts2_username",
+                "label": "WEB用户名",
+                "initValue": "admin",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入WEB管理页面用户名"
+                    },
+                    {
+                        "pattern": "^[a-zA-Z0-9_]+$",
+                        "message": "用户名只能包含字母、数字和下划线"
+                    }
+                ]
+            },
+            {
+                "type": "password",
+                "field": "vnts2_password",
+                "label": "WEB账号密码",
+                "initValue": "admin",
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请输入WEB管理页面密码"
+                    },
+                    {
+                        "min": 5,
+                        "message": "密码长度不能少于5位"
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "vnts2_white_list",
+                "label": "Token白名单（多个用空格或逗号分隔，留空允许所有Token）",
+                "initValue": ""
+            },
+            {
+                "type": "text",
+                "field": "vnts2_lease_duration",
+                "label": "IP租约时长（秒）",
+                "initValue": "86400",
+                "rules": [
+                    {
+                        "pattern": "^[0-9]+$",
+                        "message": "租约时长必须是数字"
+                    }
+                ]
+            },
+            {
+                "type": "switch",
+                "field": "vnts2_persistence",
+                "label": "数据持久化（重启不丢失IP分配记录）",
+                "initValue": true
+            },
+            {
+                "type": "text",
+                "field": "vnts2_server_quic_port",
+                "label": "服务端互联端口（留空不启用多节点集群）",
+                "initValue": ""
+            },
+            {
+                "type": "text",
+                "field": "vnts2_server_token",
+                "label": "集群认证密钥（集群各节点需保持一致）",
+                "initValue": ""
+            },
+            {
+                "type": "text",
+                "field": "vnts2_peer_servers",
+                "label": "其他服务端地址（多个用空格或逗号分隔，如 server2:29873）",
+                "initValue": ""
+            }
+        ]
+    }
+]

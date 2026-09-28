@@ -1,0 +1,15 @@
+appname               = vnts2
+version               = 2.0.7-time
+display_name          = VNTS2-服务端
+desc                  = <h1><a href="https://github.com/vnt-dev/vnts" target="_blank">VNTS2</a> 是VNT2的服务端，与1.x不兼容</h1><br><img alt="" src="https://img.shields.io/github/v/release/wanghlstar/vnt2_fpk?label=%E9%A3%9E%E7%89%9B%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC&link=https%3A%2F%2Fgithub.com%2Fwanghlstar%2Fvnt2_fpk%2Freleases"><br>首次启动会自动生成 config.toml 配置文件，服务端口 29872(TCP+UDP)、Web管理端口 29871，配置文件在 文件管理 - 应用文件 里
+platform              = all
+source                = thirdparty
+maintainer            = vnt-dev
+maintainer_url        = https://github.com/vnt-dev/vnts
+distributor           = wanghlstar
+distributor_url       = https://github.com/wanghlstar/vnt2_fpk
+
+ctl_stop              = true
+
+desktop_uidir         = ui
+desktop_applaunchname = vnts2.Application

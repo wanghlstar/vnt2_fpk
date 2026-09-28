@@ -1,0 +1,37 @@
+[
+    {
+        "stepTitle": "确认卸载",
+        "items": [
+            {
+                "type": "tips",
+                "helpText": "您即将卸载此应用。请选择如何处理VNTS2数据（配置文件、自签名证书、IP分配记录等）："
+            },
+            {
+                "type": "radio",
+                "field": "vnts2_data_action",
+                "label": "数据保留选项",
+                "initValue": "keep",
+                "options": [
+                    {
+                        "label": "保留数据（推荐）- 重新安装时配置和客户端IP分配继续生效",
+                        "value": "keep"
+                    },
+                    {
+                        "label": "删除数据 - 重新安装时需要重新配置服务端",
+                        "value": "delete"
+                    }
+                ],
+                "rules": [
+                    {
+                        "required": true,
+                        "message": "请选择数据保留选项"
+                    }
+                ]
+            },
+            {
+                "type": "tips",
+                "helpText": "<strong>警告：</strong> 若选择删除数据后，之前的配置、证书和客户端IP分配记录将会丢失，下次安装时需要重新配置。"
+            }
+        ]
+    }
+]

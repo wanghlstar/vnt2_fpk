@@ -1,0 +1,12 @@
+{
+    ".url": {
+        "vnt2.Application": {
+            "title": "VNT2-客户端",
+            "icon": "images/icon_{0}.png",
+            "type": "iframe",
+            "protocol": "http",
+            "url": "/cgi/ThirdParty/vnt2/index.cgi/",
+            "allUsers": true
+        }
+    }
+}

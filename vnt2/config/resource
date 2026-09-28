@@ -1,0 +1,28 @@
+{
+    "data-share":
+    {
+        "shares":
+        [
+            {
+                "name": "vnt2",
+                "permission":
+                {
+                    "rw":
+                    [
+                        "vnt2"
+                    ]
+                }
+            },
+            {
+                "name": "vnt2/data",
+                "permission":
+                {
+                    "rw":
+                    [
+                        "vnt2"
+                    ]
+                }
+            }
+        ]
+    }
+}

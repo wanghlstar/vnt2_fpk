@@ -1,0 +1,285 @@
+#!/bin/bash
+
+LOG_FILE="/var/apps/vnts2/var/info.log"
+PID_FILE="/var/apps/vnts2/var/app.pid"
+
+VNTS2_bin="/var/apps/vnts2/target/bin/vnts2"
+VNTS2_dir="/var/apps/vnts2/shares/vnts2"
+VNTS2_config="${VNTS2_dir}/config.toml"
+
+log_msg() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')]: INFO $1" >> ${LOG_FILE}
+}
+
+# 将 "123 456 789" 或 "123,456,789" 之类的输入转为 TOML 数组元素
+to_toml_array() {
+    local raw="$1"
+    local out=""
+    for item in $(echo "$raw" | tr ',;' '  '); do
+        [ -z "$item" ] && continue
+        out="${out}\"${item}\", "
+    done
+    echo "${out%, }"
+}
+
+# 根据应用设置(环境变量)生成 config.toml
+# 说明：除 [ikev2] [wireguard] 高级段落外，配置由应用设置统一管理，
+#       手动修改的其他参数会在重启时被应用设置覆盖
+generate_config() {
+    mkdir -p "${VNTS2_dir}"
+
+    # 保留旧配置中用户自定义的 [ikev2] [wireguard] 段落
+    local custom_section=""
+    if [ -f "${VNTS2_config}" ]; then
+        custom_section="$(sed -n '/^\[ikev2\]/,$p' "${VNTS2_config}" 2>/dev/null)"
+    fi
+
+    local tcp_port="$vnts2_tcp_port"
+    local quic_port="$vnts2_quic_port"
+    local ws_port="$vnts2_ws_port"
+    local web_port="$vnts2_web_port"
+    local network="$vnts2_network"
+    local username="$vnts2_username"
+    local password="$vnts2_password"
+    local white_list="$vnts2_white_list"
+    local lease_duration="$vnts2_lease_duration"
+    local persistence="$vnts2_persistence"
+    local server_quic_port="$vnts2_server_quic_port"
+    local server_token="$vnts2_server_token"
+    local peer_servers="$vnts2_peer_servers"
+
+    [ -z "$tcp_port" ] && tcp_port="29872"
+    [ -z "$quic_port" ] && quic_port="29872"
+    [ -z "$web_port" ] && web_port="29871"
+    [ -z "$network" ] && network="10.26.0.0/24"
+    [ -z "$username" ] && username="admin"
+    [ -z "$password" ] && password="admin"
+    [ -z "$lease_duration" ] && lease_duration="86400"
+    [ "$persistence" = "false" ] || persistence="true"
+
+    cat > "${VNTS2_config}" <<EOF
+# ═══════════════════════════════════════════════════════
+# VNTS2 服务端配置文件
+# 由 飞牛NAS VNTS2 应用 根据应用设置自动生成
+# 除 [ikev2] [wireguard] 段外，修改其他参数请在应用设置中修改后重启生效
+# ═══════════════════════════════════════════════════════
+
+# ─── 协议监听地址（TCP / QUIC / WebSocket 至少启用一种）───
+
+# TCP 监听地址 — 稳定可靠，穿透性最佳
+tcp_bind = "[::]:${tcp_port}"
+
+# QUIC 监听地址 — 基于 UDP 的加密传输，低延迟（与 TCP 同端口复用）
+quic_bind = "[::]:${quic_port}"
+EOF
+
+    if [ -n "$ws_port" ]; then
+        cat >> "${VNTS2_config}" <<EOF
+
+# WebSocket 监听地址 — 可穿透 HTTP/HTTPS 代理
+ws_bind = "[::]:${ws_port}"
+EOF
+    else
+        cat >> "${VNTS2_config}" <<EOF
+
+# WebSocket 监听地址，留空不启用 WebSocket
+# ws_bind = "[::]:29872"
+EOF
+    fi
+
+    cat >> "${VNTS2_config}" <<EOF
+
+# ─── 虚拟网络基础配置 ───
+
+# 默认虚拟网段（CIDR 格式），网关 IP 为该网段首个可用地址
+network = "${network}"
+
+# Token 白名单 — 留空 [] 允许所有 Token；填写后仅列表内的 Token 可接入
+white_list = [$(to_toml_array "$white_list")]
+
+# IP 租约时长（秒）— 客户端离线超过此时间将回收并重新分配 IP
+lease_duration = ${lease_duration}
+
+# 数据持久化 — 开启后重启不会丢失 IP 分配记录
+persistence = ${persistence}
+
+# ─── Web 管理界面 ───
+
+# Web 管理端绑定地址，访问后可查看在线设备、分配情况等
+web_bind = "[::]:${web_port}"
+
+# Web 管理界面登录用户名
+username = "${username}"
+
+# Web 管理界面登录密码
+password = "${password}"
+
+# ─── TLS 证书（QUIC 和 WebSocket 服务必需；不填自动生成自签名证书）───
+
+# 自定义证书路径，不填则自动生成自签名证书 cert.pem / key.pem
+# cert = "cert.pem"
+# key = "key.pem"
+
+# ─── 服务端互联配置（单节点部署可全部注释）───
+EOF
+
+    if [ -n "$server_quic_port" ]; then
+        cat >> "${VNTS2_config}" <<EOF
+
+# 服务端之间通信的专用 QUIC 端口
+server_quic_bind = "[::]:${server_quic_port}"
+EOF
+    else
+        cat >> "${VNTS2_config}" <<EOF
+
+# 服务端互联 QUIC 端口，留空则不启用服务端互联
+# server_quic_bind = "[::]:29873"
+EOF
+    fi
+
+    if [ -n "$peer_servers" ]; then
+        cat >> "${VNTS2_config}" <<EOF
+
+# 集群中其他 VNTS2 服务器的地址列表
+peer_servers = [$(to_toml_array "$peer_servers")]
+EOF
+    else
+        cat >> "${VNTS2_config}" <<EOF
+
+# 其他 VNTS2 服务器地址，格式：["server2.example.com:29873"]
+# peer_servers = ["server2.example.com:29873"]
+EOF
+    fi
+
+    if [ -n "$server_token" ]; then
+        cat >> "${VNTS2_config}" <<EOF
+
+# 集群各节点共享的身份验证密钥
+server_token = "${server_token}"
+EOF
+    else
+        cat >> "${VNTS2_config}" <<EOF
+
+# 集群认证密钥，集群内所有节点需保持一致
+# server_token = "your-cluster-secret"
+EOF
+    fi
+
+    # 附加保留的用户自定义高级段落
+    if [ -n "$custom_section" ]; then
+        cat >> "${VNTS2_config}" <<EOF
+
+# ─── 以下为保留的用户自定义高级配置 ───
+${custom_section}
+EOF
+    fi
+}
+
+start_process() {
+    if pidof "vnts2" >/dev/null 2>&1 && status; then
+    	log_msg "程序已运行，跳过启动"
+        return 0
+    fi
+    rm -f "${PID_FILE}" >/dev/null 2>&1
+
+    # 启动前清空日志文件
+    > ${LOG_FILE}
+
+    log_msg "开始运行 ..."
+    generate_config
+
+    # 运行启动参数（数据目录为工作目录，证书和持久化数据写入此处）
+    cd "${VNTS2_dir}" || exit 1
+    ${VNTS2_bin} -c "${VNTS2_config}" >> ${LOG_FILE} 2>&1 &
+    # 写入进程文件
+    printf "%s" "$!" > ${PID_FILE}
+    log_msg "启动命令： cd ${VNTS2_dir} && ${VNTS2_bin} -c ${VNTS2_config}"
+    log_msg "进程PID： $!"
+    return 0
+}
+
+stop_process() {
+    log_msg "正在停止 ..."
+
+    if [ -r "${PID_FILE}" ]; then
+        pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
+
+        log_msg "进程PID：${pid}"
+        if ! check_process "${pid}"; then
+            # 进程不存在，删除进程文件
+            rm -f "${PID_FILE}"
+            log_msg "进程不存在，删除进程文件"
+            return
+        fi
+
+        log_msg "发送 TERM signal 停止信号到 PID:${pid}..."
+        kill -TERM ${pid} >> ${LOG_FILE} 2>&1
+
+        local count=0
+        while check_process "${pid}" && [ $count -lt 10 ]; do
+            sleep 1
+            count=$((count + 1))
+            log_msg "等待进程终止... (${count}s/10s)"
+        done
+
+        if check_process "${pid}"; then
+            log_msg "发送 KILL signal 强制停止信号到 PID:${pid}..."
+            kill -KILL "${pid}"
+            sleep 1
+            rm -f "${PID_FILE}"
+        else
+            log_msg "vnts2进程已结束运行！"
+        fi
+    fi
+    if pidof "vnts2" >/dev/null 2>&1; then
+    	killall -9 vnts2 >/dev/null 2>&1
+    fi
+    rm -f "${PID_FILE}" >/dev/null 2>&1
+
+    return 0
+}
+
+check_process() {
+    local pid=$1
+    if kill -0 "${pid}" 2>/dev/null; then
+        return 0  # 进程在运行中
+    else
+        return 1  # 进程未运行
+    fi
+}
+
+status() {
+    if [ -f "${PID_FILE}" ]; then
+        pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
+        if check_process "${pid}"; then
+            return 0
+        else
+            # 进程未运行，但pid文件存在 - 应该要删除它
+            rm -f "${PID_FILE}"
+        fi
+    fi
+
+    return 1
+}
+
+case $1 in
+start)
+    # 启动应用的命令，成功返回 0，失败返回 1
+    start_process
+    ;;
+stop)
+    # 停止应用的命令，成功返回 0，失败返回 1
+    stop_process
+    ;;
+status)
+    # 检查应用运行状态，运行中返回 0，未运行返回 3
+    if status; then
+        exit 0
+    else
+        exit 3
+    fi
+    ;;
+*)
+    exit 1
+    ;;
+esac

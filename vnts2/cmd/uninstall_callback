@@ -1,0 +1,24 @@
+#!/bin/bash
+
+### This script is called after the user uninstalls the application.
+
+LOG_FILE="/var/apps/vnts2/var/info.log"
+
+log_msg() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')]: INFO $1" >> ${LOG_FILE}
+}
+
+# VNTS2的数据目录（配置文件、自签名证书、IP分配记录等）
+VNTS2_DATA_DIR="/var/apps/vnts2/shares/vnts2"
+
+log_msg "正在卸载，用户选择数据保留选项: $vnts2_data_action"
+
+# 根据用户选择执行相应逻辑
+if [ "$vnts2_data_action" = "delete" ]; then
+    log_msg "已删除VNTS2的数据目录：$VNTS2_DATA_DIR"
+    rm -rf ${VNTS2_DATA_DIR}
+else
+    log_msg "已保留VNTS2的数据目录：${VNTS2_DATA_DIR}"
+fi
+
+exit 0

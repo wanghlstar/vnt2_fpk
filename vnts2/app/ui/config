@@ -1,0 +1,16 @@
+{
+    ".url": {
+        "vnts2.Application": {
+            "title": "VNTS2-服务端",
+            "icon": "images/icon_{0}.png",
+            "type": "url",
+            "protocol": "http",
+            "port": "${vnts2_web_port}",
+            "control": {
+                "accessPerm": "editable",
+                "portPerm": "editable",
+                "pathPerm": "editable"
+            }
+        }
+    }
+}
