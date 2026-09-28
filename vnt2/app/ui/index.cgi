@@ -41,6 +41,7 @@ fi
 # API 端点处理
 if [[ "$ACTION" == "api_status" ]]; then
     RUNNING="false"
+    WAITING="false"
     PID=""
     UPTIME=""
 
@@ -59,12 +60,14 @@ if [[ "$ACTION" == "api_status" ]]; then
                 UPTIME="${day}${time}"
             fi
         fi
+    elif [ -r "/var/apps/vnt2/var/app.pid" ] && kill -0 "$(head -n 1 /var/apps/vnt2/var/app.pid 2>/dev/null | tr -d '[:space:]')" 2>/dev/null; then
+        WAITING="true"
     fi
 
     echo "Status: 200 OK"
     echo "Content-Type: application/json"
     echo ""
-    echo "{\"running\": $RUNNING, \"pid\": \"$PID\", \"uptime\": \"$UPTIME\"}"
+    echo "{\"running\": $RUNNING, \"waiting\": $WAITING, \"pid\": \"$PID\", \"uptime\": \"$UPTIME\"}"
     exit 0
 fi
 
@@ -155,9 +158,23 @@ if [[ "$ACTION" == "stop" ]]; then
 fi
 
 RUNNING="false"
+WAITING="false"
 pgrep -f "$VNT2_bin" >/dev/null 2>&1 && RUNNING="true"
+[ "$RUNNING" = "false" ] && [ -r "/var/apps/vnt2/var/app.pid" ] && kill -0 "$(head -n 1 /var/apps/vnt2/var/app.pid 2>/dev/null | tr -d '[:space:]')" 2>/dev/null && WAITING="true"
+
+if [ "$RUNNING" = "true" ]; then
+    STATUS_TEXT="运行中"; STATUS_COLOR="#38ef7d"; BTN_TEXT="停止"; BTN_ACTION="stop"; BTN_COLOR="linear-gradient(135deg,#eb3349,#f45c43)"
+elif [ "$WAITING" = "true" ]; then
+    STATUS_TEXT="等待配置"; STATUS_COLOR="#ff9800"; BTN_TEXT="停止"; BTN_ACTION="stop"; BTN_COLOR="linear-gradient(135deg,#eb3349,#f45c43)"
+else
+    STATUS_TEXT="未运行"; STATUS_COLOR="#f45c43"; BTN_TEXT="启动"; BTN_ACTION="start"; BTN_COLOR="linear-gradient(135deg,#11998e,#38ef7d)"
+fi
 
 CONFIG_TEXT=""
+if [[ ! -s "$VNT2_config" ]] && [ -f "/var/apps/vnt2/target/bin/config.toml.example" ]; then
+    mkdir -p "$VNT2_dir" 2>/dev/null
+    cp -f "/var/apps/vnt2/target/bin/config.toml.example" "$VNT2_config" 2>/dev/null
+fi
 if [[ -s "$VNT2_config" ]]; then
     CONFIG_TEXT=$(cat "$VNT2_config")
 fi
@@ -332,12 +349,12 @@ pre {
 <div class="card">
 <h1>VNT2 客户端</h1>
 <p class="status">状态：
-<span id="status-indicator" style="color: $(if [ "$RUNNING" = "true" ]; then echo "#38ef7d"; else echo "#f45c43"; fi); font-weight: bold;">
-$(if [ "$RUNNING" = "true" ]; then echo "运行中"; else echo "未运行"; fi)
+<span id="status-indicator" style="color: ${STATUS_COLOR}; font-weight: bold;">
+${STATUS_TEXT}
 </span>
 </p>
-<button id="control-button" onclick="control('$(if [ "$RUNNING" = "true" ]; then echo "stop"; else echo "start"; fi)')" style="background: $(if [ "$RUNNING" = "true" ]; then echo "linear-gradient(135deg,#eb3349,#f45c43)"; else echo "linear-gradient(135deg,#11998e,#38ef7d)"; fi);">
-$(if [ "$RUNNING" = "true" ]; then echo "停止"; else echo "启动"; fi)
+<button id="control-button" onclick="control('${BTN_ACTION}')" style="background: ${BTN_COLOR};">
+${BTN_TEXT}
 </button>
 <button onclick="showModal('info-modal')" style="background: linear-gradient(135deg,#fa709a,#fee140);">本机信息</button>
 <button onclick="showModal('list-modal')" style="background: linear-gradient(135deg,#4facfe,#00f2fe);">设备列表</button>
@@ -360,7 +377,7 @@ $(if [ "$RUNNING" = "true" ]; then echo "停止"; else echo "启动"; fi)
 </div>
 <form method="post">
 <input type="hidden" name="action" value="save_config">
-<textarea name="config" placeholder="🤣 糟啦,配置文件为空，会无法启动喔，快去生成一个配置文件保存进来吧~">$CONFIG_TEXT</textarea>
+<textarea name="config" placeholder="🤣 糟啦，配置文件为空！点右上角“点此生成配置文件”生成后粘贴到此处保存，保存后将自动启动组网（VNT2 使用 TOML 格式配置）">$CONFIG_TEXT</textarea>
 <br><br>
 <button type="submit">保存配置</button>
 </form>
@@ -556,6 +573,11 @@ async function updateStatus() {
             }
             statusSpan.innerHTML = statusHtml;
 
+            statusButton.textContent = '停止';
+            statusButton.onclick = () => control('stop');
+            statusButton.style.background = 'linear-gradient(135deg,#eb3349,#f45c43)';
+        } else if (data.waiting) {
+            statusSpan.innerHTML = '<span style="color: #ff9800;">等待配置</span> <span style="color: #999;">填写下方配置并保存后自动启动</span>';
             statusButton.textContent = '停止';
             statusButton.onclick = () => control('stop');
             statusButton.style.background = 'linear-gradient(135deg,#eb3349,#f45c43)';

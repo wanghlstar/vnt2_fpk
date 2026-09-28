@@ -64,10 +64,27 @@ check_route_cmd() {
     fi
 }
 
+# 从 config.toml 中读取 network_code 和 server
+read_vnt2_config() {
+    VNT2_CODE="$(sed -n 's/^[[:space:]]*network_code[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$VNT2_config" 2>/dev/null | tr -d '\r\n')"
+    VNT2_SERVER="$(grep -oE '^[[:space:]]*server[[:space:]]*=[[:space:]]*\[[^]"]*"[^"]*"' "$VNT2_config" 2>/dev/null | head -1 | sed 's/.*"\([^"]*\)"$/\1/' | tr -d '\r\n')"
+}
+
 start_process() {
     if pidof "vnt2_cli" >/dev/null 2>&1 && status; then
     	log_msg "程序已运行，跳过启动"
         return 0
+    fi
+
+    # 清理残留的旧进程（占位进程或异常残留）
+    if [ -r "${PID_FILE}" ]; then
+        old_pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
+        if [ -n "$old_pid" ] && check_process "${old_pid}"; then
+            if ! grep -q "vnt2_cli" "/proc/${old_pid}/comm" 2>/dev/null; then
+                kill -TERM "${old_pid}" 2>/dev/null
+                sleep 1
+            fi
+        fi
     fi
     rm -f "${PID_FILE}" >/dev/null 2>&1
 
@@ -75,15 +92,35 @@ start_process() {
     > "${LOG_FILE}"
     log_msg "开始运行 ..."
 
-    # 确保配置文件和数据目录存在
+    # 确保配置文件和数据目录存在，首次运行生成初始配置模板
     mkdir -p "${VNT2_dir}" >/dev/null 2>&1
+    if [ ! -s "${VNT2_config}" ] && [ -f "${VNT2_bin%/*}/config.toml.example" ]; then
+        cp -f "${VNT2_bin%/*}/config.toml.example" "${VNT2_config}" >> ${LOG_FILE} 2>&1
+        log_msg "已生成初始配置模板：${VNT2_config}"
+    fi
     [ -f "${VNT2_config}" ] || touch "${VNT2_config}"
 
-    # 配置文件为空或不含 network_code/server 则不启动
-    VNT2_CODE="$(sed -n 's/^[[:space:]]*network_code[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$VNT2_config" 2>/dev/null | tr -d '\r\n')"
-    VNT2_SERVER="$(grep -oE '^[[:space:]]*server[[:space:]]*=[[:space:]]*\[[^]"]*"[^"]*"' "$VNT2_config" 2>/dev/null | head -1 | sed 's/.*"\([^"]*\)"$/\1/' | tr -d '\r\n')"
+    # 配置不完整时不启动组网，但保持应用运行中，避免配置窗口闪退
+    read_vnt2_config
     if [[ -z "$VNT2_CODE" || -z "$VNT2_SERVER" ]]; then
-        log_msg "⚠️ 配置不完整！配置文件中必须包含 network_code 和 server 才能启动！"
+        log_msg "⚠️ 配置不完整！需要包含 network_code(组网编号) 和 server(服务端地址)"
+        log_msg "应用保持运行中，请在配置页面填写并保存，保存后将自动启动组网"
+        (
+            # 等待用户填写配置，填写后自动启动组网
+            trap 'exit 0' SIGINT SIGTERM EXIT
+            while true; do
+                read_vnt2_config
+                if [[ -n "$VNT2_CODE" && -n "$VNT2_SERVER" ]]; then
+                    log_msg "检测到配置已填写，开始启动组网 ..."
+                    cd "${VNT2_dir}" || exit 1
+                    exec ${VNT2_bin} --conf "${VNT2_config}" >> "${LOG_FILE}" 2>&1
+                fi
+                sleep 5
+            done
+        ) &
+        MAIN_PID=$!
+        echo "${MAIN_PID}" > "${PID_FILE}"
+        log_msg "等待配置中，占位进程PID： ${MAIN_PID}"
         return 0
     fi
 
@@ -134,7 +171,9 @@ start_process() {
     iptables -I INPUT -i $tun_name -j ACCEPT 2>/dev/null
     iptables -t nat -I POSTROUTING -o $tun_name -j MASQUERADE 2>/dev/null
     (
-        while :; do
+        # 最多等待60秒，避免网卡名不匹配时无限轮询
+        local wait_count=0
+        while [ $wait_count -lt 60 ]; do
             ip_segment=$(ip route | grep -E "dev\s+$tun_name\s+proto\s+kernel" | awk '{print $1}')
 
             if [ -n "$ip_segment" ]; then
@@ -144,7 +183,9 @@ start_process() {
             fi
 
             sleep 1
+            wait_count=$((wait_count + 1))
         done
+        [ -n "$ip_segment" ] || log_msg "未检测到 ${tun_name} 网卡的网段信息，跳过动态伪装规则"
     ) &
 
     # 记录运行时间

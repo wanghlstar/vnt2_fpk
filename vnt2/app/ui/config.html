@@ -467,6 +467,10 @@
                     <option value="standard">standard（系统证书验证）</option>
                     <option value="finger">finger（证书指纹验证）</option>
                 </select>
+                <div id="cert_finger_row" style="display:none;">
+                    <label title="证书指纹：服务端启动时日志会输出指纹，例如 3bdd8675606837cdf95d5e13445606315762315a78555f9da652940a25feaec1（64位十六进制）">证书指纹:</label>
+                    <input id="cert_fingerprint" placeholder="3bdd8675606837cdf95d5e13445606315762315a78555f9da652940a25feaec1" />
+                </div>
                 <label title="udp_stun  自定义udp打洞的stun地址，不设置则用默认stun">UDP STUN服务器:</label>
                 <div id="udp_stun" class="list-group"></div>
                 <button class="add-btn" type="button" onclick="addListItem('udp_stun', '', 'stun.chat.bilibili.com')">+ 添加</button>
@@ -569,6 +573,15 @@
         // 获取单值
         const getVal = id => document.getElementById(id).value.trim();
 
+        // 证书校验方式切换：选择 finger 时显示证书指纹输入框
+        const certModeSel = document.getElementById("cert_mode");
+        const certFingerRow = document.getElementById("cert_finger_row");
+        const toggleCertFinger = () => {
+            certFingerRow.style.display = certModeSel.value === "finger" ? "block" : "none";
+        };
+        certModeSel.addEventListener("change", toggleCertFinger);
+        toggleCertFinger();
+
         // 获取单选值
         function getRadio(name) {
             const el = document.querySelector(`input[name="${name}"]:checked`);
@@ -611,7 +624,7 @@
 
         // 生成配置
         function generateConfig() {
-            ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port"].forEach(clearError);
+            ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port", "cert_fingerprint"].forEach(clearError);
 
             const codeVal = getVal("network_code");
             const ipVal = getVal("ip");
@@ -662,6 +675,20 @@
                 const tpNum = Number(tunnelPortVal);
                 if (!Number.isInteger(tpNum) || tpNum < 0 || tpNum > 65535) {
                     showError("tunnel_port", "请输入0到65535之间的整数，0表示自动分配!");
+                    return;
+                }
+            }
+
+            // 8. 证书指纹校验（选择 finger 时必填）
+            const certModeVal = getVal("cert_mode");
+            const certFingerVal = getVal("cert_fingerprint");
+            if (certModeVal === "finger") {
+                if (!certFingerVal) {
+                    showError("cert_fingerprint", "选择证书指纹验证时，必须填写证书指纹哦~");
+                    return;
+                }
+                if (!/^[0-9a-fA-F]{64}$/.test(certFingerVal)) {
+                    showError("cert_fingerprint", "证书指纹必须是64位十六进制字符!");
                     return;
                 }
             }
@@ -761,7 +788,9 @@
             if (tunnelPortVal) {
                 pushKV("tunnel_port", tunnelPortVal, "P2P隧道端口，0表示自动分配");
             }
-            if (getVal("cert_mode")) {
+            if (getVal("cert_mode") === "finger") {
+                pushKV("cert_mode", `"finger:${certFingerVal}"`, "证书指纹验证");
+            } else if (getVal("cert_mode")) {
                 pushKV("cert_mode", `"${getVal("cert_mode")}"`, "服务端证书验证方式");
             }
             pushList("udp_stun", getList("udp_stun"), "自定义udp stun地址");
@@ -807,7 +836,7 @@
         addListItem("mappings", "", "tcp://0.0.0.0:81-10.26.0.2-192.168.1.10:80");
 
         // 监听输入，实时清除错误
-        ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port"].forEach(id => {
+        ["network_code", "ip", "mtu", "device_id", "ctrl_port", "tunnel_port", "cert_fingerprint"].forEach(id => {
             document.getElementById(id).addEventListener("input", () => clearError(id));
         });
 
