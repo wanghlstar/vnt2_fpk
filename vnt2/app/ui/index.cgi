@@ -42,6 +42,7 @@ fi
 if [[ "$ACTION" == "api_status" ]]; then
     RUNNING="false"
     WAITING="false"
+    RESTARTING="false"
     PID=""
     UPTIME=""
 
@@ -61,13 +62,17 @@ if [[ "$ACTION" == "api_status" ]]; then
             fi
         fi
     elif [ -r "/var/apps/vnt2/var/app.pid" ] && kill -0 "$(head -n 1 /var/apps/vnt2/var/app.pid 2>/dev/null | tr -d '[:space:]')" 2>/dev/null; then
-        WAITING="true"
+        if [ "$(cat /var/apps/vnt2/var/state 2>/dev/null)" = "waiting" ]; then
+            WAITING="true"
+        else
+            RESTARTING="true"
+        fi
     fi
 
     echo "Status: 200 OK"
     echo "Content-Type: application/json"
     echo ""
-    echo "{\"running\": $RUNNING, \"waiting\": $WAITING, \"pid\": \"$PID\", \"uptime\": \"$UPTIME\"}"
+    echo "{\"running\": $RUNNING, \"waiting\": $WAITING, \"restarting\": $RESTARTING, \"pid\": \"$PID\", \"uptime\": \"$UPTIME\"}"
     exit 0
 fi
 
@@ -159,13 +164,22 @@ fi
 
 RUNNING="false"
 WAITING="false"
+RESTARTING="false"
 pgrep -f "$VNT2_bin" >/dev/null 2>&1 && RUNNING="true"
-[ "$RUNNING" = "false" ] && [ -r "/var/apps/vnt2/var/app.pid" ] && kill -0 "$(head -n 1 /var/apps/vnt2/var/app.pid 2>/dev/null | tr -d '[:space:]')" 2>/dev/null && WAITING="true"
+if [ "$RUNNING" = "false" ] && [ -r "/var/apps/vnt2/var/app.pid" ] && kill -0 "$(head -n 1 /var/apps/vnt2/var/app.pid 2>/dev/null | tr -d '[:space:]')" 2>/dev/null; then
+    if [ "$(cat /var/apps/vnt2/var/state 2>/dev/null)" = "waiting" ]; then
+        WAITING="true"
+    else
+        RESTARTING="true"
+    fi
+fi
 
 if [ "$RUNNING" = "true" ]; then
     STATUS_TEXT="运行中"; STATUS_COLOR="#38ef7d"; BTN_TEXT="停止"; BTN_ACTION="stop"; BTN_COLOR="linear-gradient(135deg,#eb3349,#f45c43)"
 elif [ "$WAITING" = "true" ]; then
     STATUS_TEXT="等待配置"; STATUS_COLOR="#ff9800"; BTN_TEXT="停止"; BTN_ACTION="stop"; BTN_COLOR="linear-gradient(135deg,#eb3349,#f45c43)"
+elif [ "$RESTARTING" = "true" ]; then
+    STATUS_TEXT="重启中"; STATUS_COLOR="#ff9800"; BTN_TEXT="停止"; BTN_ACTION="stop"; BTN_COLOR="linear-gradient(135deg,#eb3349,#f45c43)"
 else
     STATUS_TEXT="未运行"; STATUS_COLOR="#f45c43"; BTN_TEXT="启动"; BTN_ACTION="start"; BTN_COLOR="linear-gradient(135deg,#11998e,#38ef7d)"
 fi
@@ -578,6 +592,11 @@ async function updateStatus() {
             statusButton.style.background = 'linear-gradient(135deg,#eb3349,#f45c43)';
         } else if (data.waiting) {
             statusSpan.innerHTML = '<span style="color: #ff9800;">等待配置</span> <span style="color: #999;">填写下方配置并保存后自动启动</span>';
+            statusButton.textContent = '停止';
+            statusButton.onclick = () => control('stop');
+            statusButton.style.background = 'linear-gradient(135deg,#eb3349,#f45c43)';
+        } else if (data.restarting) {
+            statusSpan.innerHTML = '<span style="color: #ff9800;">重启中</span> <span style="color: #999;">vnt2_cli 异常退出，正在自动重启，请查看运行日志</span>';
             statusButton.textContent = '停止';
             statusButton.onclick = () => control('stop');
             statusButton.style.background = 'linear-gradient(135deg,#eb3349,#f45c43)';
