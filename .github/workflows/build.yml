@@ -22,10 +22,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'vnt2/**'
-      - 'vnts2/**'
-      - '.github/workflows/build.yml'
+    tags:
+      - 'v*'
   
 env:
   TZ: Asia/Shanghai
@@ -216,7 +214,11 @@ jobs:
         chmod +x release/*
         sudo timedatectl set-timezone "Asia/Shanghai"
         echo "build_time=$(date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
-        echo "tag=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+        if [ "${{ github.ref_type }}" = "tag" ]; then
+          echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+        else
+          echo "tag=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+        fi
 
      - name: 发布Release
        uses: softprops/action-gh-release@v2
